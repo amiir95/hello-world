@@ -1,8 +1,9 @@
-<?php require ("db.php");?>
-
 <?php
+include 'db.php';
+//error_reporting(E_ALL);
 session_start();
 ?>
+
 
 <?php
 if(isset($_POST['sign_up']))
@@ -12,39 +13,83 @@ if(isset($_POST['sign_up']))
 $Fname=$_POST['Fname'];
 $Lname=$_POST['Lname'];
 $Nickname=$_POST['Nickname'];
-$password=$_POST['password'];
+$Password=$_POST['password'];
 $Phone1=$_POST['Phone1'];
 $Phone2=$_POST['Phone2'];
 $Email=$_POST['Email'];
 $Gender=$_POST['Gender'];
-$_SESSION["Gender"] = $Gender;
 $Birthdate=$_POST['bday'];
-$PP="amir";
+$PP="";
 $Hometown=$_POST['Hometown'];
 $RelationshipStatus=$_POST['Status'];;
 $Bio=$_POST['Bio'];
 
-//$_SESSION["Email"] = $Email;
-//	$_SESSION["message"]=0;
+$_SESSION["Email"] = $Email;
+$_SESSION["message"]=0;
 //$_SESSION["message"]=1;
 
 
+$query = "SELECT Email From Users WHERE Email = '$Email'";
+$search = mysqli_query($connection,$query);
 
-
-
-	$password2 = password_hash($password,PASSWORD_BCRYPT,array('cost'=>12));
-$sql = "INSERT into Users(Fname,Lname,Nickname,Password,Phone1,Phone2,Email,Gender,Birthdate,Hometown,RelationshipStatus,Bio) values ('$Fname','$Lname','$Nickname','$password2','$Phone1','$Phone2','$Email','$Gender','$Birthdate','$Hometown','$RelationshipStatus','$Bio')";
+if(mysqli_num_rows($search) > 0){
+ 
+$_SESSION["message"] = 1;
+}
+else 
+{
+	$Password2 = password_hash($password,PASSWORD_BCRYPT,array('cost'=>12));
+$sql = "INSERT into Users(Fname,Lname,Nickname,Password,Phone1,Phone2,Email,Gender,Birthdate,ProfilePic,Hometown,RelationshipStatus,Bio) values ('$Fname','$Lname','$Nickname','$Password2','$Phone1','$Phone2','$Email','$Gender','$Birthdate','$PP','$Hometown','$RelationshipStatus','$Bio')";
 $search = mysqli_query($connection,$sql);
 header("Location: test.php");
 }
+$connection->close();
+}
 
+if(isset($_POST['logIn']))
+{
+	$Email=$_POST['LEmail'];
+	$Password=$_POST['Lpassword'];
+	$_SESSION["message"]=0;
+		$_SESSION["Email"] = $Email;
+
+$query = "SELECT Email From Users WHERE Email = '$Email'";
+$search = mysqli_query($connection,$query);
+
+
+if(mysqli_num_rows($search) > 0){
+	
+$search2 = mysqli_query($connection,"SELECT Password From Users WHERE Email = '$Email'");
+$obj2 = mysqli_fetch_object($search2);
+if(!password_verify($Password,$obj2->Password))
+{ 
+	//$search3=mysqli_query($conn,"SELECT Did From User WHERE username = '$username'");
+	//$object=mysqli_fetch_object($search3);
+	//if($object->Did == null){
+		header("Location: test.php");
+//}
+
+
+}
+
+else{
+	echo "'$Password'   '$obj2->Password'";
+	$_SESSION["message"] = 2;
+}
+
+}
+else{
+$_SESSION["message"] = 3;
+} 
+$connection->close();
+}
 ?>
 <html>
 	<head>
 		<script type="text/javascript">
 			function signUpForm(){
-				var Fname = document.getElementById("FName").value;
-				var Lname = document.getElementById("LName").value;
+				var Fname = document.getElementById("Fname").value;
+				var Lname = document.getElementById("Lname").value;
 				var password = document.getElementById("password").value;
 				var Email = document.getElementById("Email").value;
 				
@@ -82,16 +127,34 @@ header("Location: test.php");
   				
 					else return true;
 				}
+
+				function logInForm(){
+				var LEmail = document.getElementById("LEmail").value;
+				var Lpassword = document.getElementById("Lpassword").value;
+
+				if(LEmail == null || LEmail == ""){
+					alert("Please Enter the Email! ");
+					return false;
+				}
+				
+				if(Lpassword == null || Lpassword == ""){
+					alert("Please Enter the password! ");
+					return false;
+				}
+				
+			}
+
+
 		</script>
 	</head>
 	<body>
 		<div> <h3>SignUp</h3> </div>
-			<form id="form1" name="form1" action="test.php" method="post" onsubmit="return signUpForm()">
+			<form id="form1" name="form1" action="" method="post" onsubmit="return signUpForm()">
 				<h3>*First Name (Required)</h3>
-				<input type = "text" Name ="FName" ID="FName"  placeholder="First Name" >
+				<input type = "text" Name ="Fname" ID="Fname"  placeholder="First Name" >
 				<br />
 				<h3>*Last Name Required)</h3>
-				<input type = "text" Name ="LName" ID="LName" placeholder="Last Name" >
+				<input type = "text" Name ="Lname" ID="Lname" placeholder="Last Name" >
 				<br />
 				<h3>Nickname :</h3>
 				<input type = "text" Name ="Nickname" ID="Nickname" placeholder="Nickname" >
@@ -106,10 +169,17 @@ header("Location: test.php");
 				<h3>*Email (Required)</h3>
 				<input type = "text" Name ="Email" ID="Email" placeholder="E-mail e.g: asdfgh@qwert.ds" >
 				
+				<?php
+				if($_SESSION["message"] == 1){
+					$_SESSION["message"]=0;
+				echo "email is already taken!! ";
+			}
+                ?>
+
 				<br />
 				<h3>*Gender (Required)</h3>
-				<input type="radio" name="Gender" ID="Male" value="Male" > Male
-  				<input type="radio" name="Gender" ID="Female" value="Female"> Female<br>
+				<input type="radio" name="Gender" ID="Male" value="0" > Male
+  				<input type="radio" name="Gender" ID="Female" value="1"> Female<br>
 				<br />
 				<h3>*Birthdate (Required)</h3>
 				<input type="date" name="bday" required="true">
@@ -125,7 +195,31 @@ header("Location: test.php");
   				<input type = "text" Name ="Bio" ID="Bio"  placeholder="bio.." >
 				<br />
 				<br />
-				<input type ="submit" value = "SIGN UP">
+				<input type ="submit" Name="sign_up" value = "SIGN UP">
+			</form>
+
+			<div>Home Page</div>
+			<form id="form" action="" method="post" onsubmit="return logInForm()">
+						Login
+				
+				<input type = "email" Name ="LEmail" ID="LEmail" placeholder="Email">
+				
+				<input type="password" Name="Lpassword" ID="Lpassword" placeholder="password">
+				<input type ="submit" Name = "logIn" value = "Login">
+							
+
+				<?php
+				if($_SESSION["message"] == 2){
+					$_SESSION["message"]=0;
+					echo " Password is Incorrect !!";
+				}
+				else if($_SESSION["message"] == 3){
+					$_SESSION["message"]=0;
+					echo " Email does not exist !!";
+				}
+
+				?>
+			
 			</form>
 	</body>
 </html>
