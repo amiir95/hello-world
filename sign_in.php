@@ -33,16 +33,17 @@ if(isset($_POST['Submit']))
             if ($row = mysqli_fetch_assoc($result))
             {
 
-                if ($password != $row['Password'])
+                if ( !password_verify($password,$row['Password']))
                 {
                     echo "<script>
                     alert('Wrong Password');
                     window.location.href='';
                     </script>";
                 }
-                elseif ($password == $row['Password'])
+                elseif (password_verify($password,$row['Password']))
                 {
 //Log in the user
+                    
                     $_SESSION['UserID'] = $row['UserID'];
                     $_SESSION['Fname'] = $row['Fname'];
                     $_SESSION['Lname'] = $row['Lname'];
@@ -55,6 +56,14 @@ if(isset($_POST['Submit']))
                     $_SESSION['Hometown'] = $row['Hometown'];
                     $_SESSION['RelationshipStatus'] = $row['RelationshipStatus'];
                     $_SESSION['Bio'] = $row['Bio'];
+                    $query="SELECT COUNT(*) as Request_num FROM add_user WHERE ReceiverID='{$row['UserID']}'";
+                    $send_query=mysqli_query($connection,$query);
+                    if(!$send_query)
+                    {
+                        die("ERROR!!".mysqli_error($connection));
+                    }
+                    $row=mysqli_fetch_assoc($send_query);
+                    $_SESSION['Request_num']=$row['Request_num'];
                     header("Location: profile/p_index.php");
 
 
@@ -124,13 +133,20 @@ else    //if he didn't press the actual login button
                         </div>
                         </div>
                         <div class="row">
-                        <div class="col-xs-offset-4 col-xs-4">
+                        <div class=" col-xs-4">
                             <div class="form-group">
-                            <input type="submit" class="btn btn-primary my-button" name="Submit">
+                            <input type="submit" class="btn btn-primary my-button" name="Submit" value="sign in">
+                            </div>
+                        </div>
+                        <div class=" col-xs-4 col-xs-offset-4">
+                            <div class="form-group">
+                            <a class="btn btn-success my-button" href="sign_up.php">Sign-Up</a>
                             </div>
                         </div>
                         </div>
-
+                        <div class="form-group">
+                            
+                        </div>
             </form>
             </div>
          </div>
