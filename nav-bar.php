@@ -1,4 +1,4 @@
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+           <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -14,17 +14,17 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li>
-                        <a href="#">Friends</a>
+                        <a href="Friends.php">Friends</a>
                     </li>
                     <li>
-                        <a href="#">Requests</a>
+                        <a href="requests.php">Requests:<?php echo $_SESSION['Request_num']?></a>
                     </li>
                      <li>
-                  <form class="form-inline my-2 my-lg-0 mr-lg-2" style="position:relative;top:10px;">
+                  <form action="search.php" method="post" class="form-inline my-2 my-lg-0 mr-lg-2" style="position:relative;top:10px;">
                     <div class="input-group">
-                      <input class="form-control" id="my-search" type="text" placeholder="Search for...">
+                      <input class="form-control" name="Search_key" id="my-search" type="text" placeholder="Search for...">
                       <span class="input-group-btn">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary" type="submit" name="Search">
                           <i class="glyphicon glyphicon-search"></i>
                         </button>
                       </span>
@@ -45,7 +45,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="#"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
+                            <a href="logout.php"><i class="fa fa-fw fa-power-off"></i> Log Out</a>
                         </li>
                     </ul>
                     </li>
